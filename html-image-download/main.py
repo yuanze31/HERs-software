@@ -76,8 +76,7 @@ def main():
 
     # 规范化URL
     url = normalize_url(raw_url)
-    print(f"规范化后的URL: {url}")
-
+    # print(f"规范化后的URL: {url}")
     print("正在分析网页内容...")
     image_urls = []
 
@@ -173,10 +172,8 @@ def main():
     print("---就在你的桌面---")
 
     if success_count < total:
-        print("\n部分图片下载失败可能由于：")
-        print("1. 需要登录才能查看的图片")
-        print("2. 动态加载的内容（如JavaScript生成的图片）")
-        print("3. 网站的特殊保护机制")
+        print("\n部分图片下载失败")
+        print(f"原链接：{url}")
         print("\n但是她就不需要关心为什么了，只需要找他就好了")
 
 
