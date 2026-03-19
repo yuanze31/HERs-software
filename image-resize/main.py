@@ -1,6 +1,5 @@
 import os
 import sys
-import stat
 from PIL import Image, ImageSequence
 
 
