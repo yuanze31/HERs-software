@@ -60,19 +60,3 @@ class MainWindow(QMainWindow):
         self.tab_widget.addTab(self.resize_tab, "图片处理")
 
         self.setCentralWidget(self.tab_widget)
-
-        self.status_bar = QStatusBar()
-        self.status_bar.setStyleSheet("""
-            QStatusBar {
-                font-size: 12px;
-                color: #666;
-            }
-        """)
-        self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("就绪")
-
-        self.tab_widget.currentChanged.connect(self.on_tab_changed)
-
-    def on_tab_changed(self, index):
-        tab_names = ["图片下载", "图片处理"]
-        self.status_bar.showMessage(f"当前功能: {tab_names[index]}")
