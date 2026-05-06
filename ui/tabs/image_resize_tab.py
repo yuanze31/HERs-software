@@ -149,6 +149,7 @@ class ImageResizeTab(QWidget):
 
         self.progress_bar = QProgressBar()
         self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(False)
         self.progress_bar.setStyleSheet("""
             QProgressBar {
                 height: 24px;

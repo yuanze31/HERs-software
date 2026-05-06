@@ -112,6 +112,7 @@ class ImageDownloadTab(QWidget):
 
         self.url_progress_bar = QProgressBar()
         self.url_progress_bar.setValue(0)
+        self.url_progress_bar.setTextVisible(False)
         self.url_progress_bar.setStyleSheet("""
             QProgressBar {
                 height: 24px;
@@ -136,6 +137,7 @@ class ImageDownloadTab(QWidget):
 
         self.image_progress_bar = QProgressBar()
         self.image_progress_bar.setValue(0)
+        self.image_progress_bar.setTextVisible(False)
         self.image_progress_bar.setStyleSheet("""
             QProgressBar {
                 height: 24px;

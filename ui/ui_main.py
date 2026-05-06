@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
             icon_path = os.path.join(os.path.dirname(sys.executable), "yuanze31.ico")
         else:
             icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "yuanze31.ico")
-        
+
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
