@@ -2,15 +2,14 @@ import os
 import sys
 
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import (QMainWindow, QStatusBar, QTabWidget)
+from PyQt6.QtWidgets import QMainWindow, QTabWidget
 
 if getattr(sys, 'frozen', False):
     sys.path.insert(0, os.path.dirname(sys.executable))
 else:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from tabs.image_download_tab import ImageDownloadTab
-from tabs.image_resize_tab import ImageResizeTab
+from tabs.registry import get_all_tabs
 
 
 class MainWindow(QMainWindow):
@@ -53,10 +52,15 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        self.download_tab = ImageDownloadTab()
-        self.resize_tab = ImageResizeTab()
-
-        self.tab_widget.addTab(self.download_tab, "图片下载")
-        self.tab_widget.addTab(self.resize_tab, "图片处理")
+        self._load_tabs()
 
         self.setCentralWidget(self.tab_widget)
+
+    def _load_tabs(self):
+        tabs_dict = get_all_tabs()
+        for tab_name, tab_class in tabs_dict.items():
+            try:
+                tab_instance = tab_class()
+                self.tab_widget.addTab(tab_instance, tab_name)
+            except Exception as e:
+                print(f"加载Tab失败 {tab_name}: {e}")

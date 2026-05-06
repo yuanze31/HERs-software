@@ -2,13 +2,15 @@ import os
 import sys
 
 from PyQt6.QtCore import pyqtSignal, QThread
-from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QTextEdit, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QTextEdit, QVBoxLayout)
 
 if getattr(sys, 'frozen', False):
     sys.path.insert(0, os.path.dirname(sys.executable))
 else:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+from tabs.base_tab import BaseTab
+from tabs.registry import register_tab
 from utils.resizer import ImageResizer
 
 
@@ -51,10 +53,12 @@ class ResizeWorker(QThread):
         self.file_processed.emit(filename, success, error_msg if error_msg else "")
 
 
-class ImageResizeTab(QWidget):
+@register_tab("图片处理")
+class ImageResizeTab(BaseTab):
     def __init__(self):
+        self.tab_name = "图片处理"
         super().__init__()
-        self.init_ui()
+        self.worker = None
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -183,7 +187,6 @@ class ImageResizeTab(QWidget):
         layout.addWidget(self.log_text)
 
         self.setLayout(layout)
-        self.worker = None
 
     def add_log(self, message):
         self.log_text.append(message)

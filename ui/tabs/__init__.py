@@ -1,0 +1,2 @@
+from tabs.image_download_tab import ImageDownloadTab
+from tabs.image_resize_tab import ImageResizeTab
