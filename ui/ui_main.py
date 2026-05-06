@@ -32,23 +32,23 @@ class MainWindow(QMainWindow):
         self.tab_widget = QTabWidget()
         self.tab_widget.setStyleSheet("""
             QTabWidget::tab-bar {
-                alignment: center;
+                alignment: left;
             }
             QTabBar::tab {
-                min-width: 120px;
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 6px 6px 0 0;
-                margin-right: 4px;
-                background-color: #f0f0f0;
+                min-width: 80px;
+                padding: 6px 12px;
+                font-size: 13px;
+                border-radius: 5px 5px 0 0;
+                margin-right: 1px;
+                background-color: #e8e8e8;
+                color: #666;
             }
             QTabBar::tab:selected {
-                background-color: white;
-                border: 1px solid #ddd;
-                border-bottom: none;
+                background-color: #ffffff;
+                color: #333;
             }
             QTabBar::tab:hover:not(selected) {
-                background-color: #e0e0e0;
+                background-color: #d8d8d8;
             }
         """)
 
