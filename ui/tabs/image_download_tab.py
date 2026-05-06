@@ -191,6 +191,8 @@ class ImageDownloadTab(QWidget):
         self.download_btn.setEnabled(False)
         self.url_progress_bar.setValue(0)
         self.image_progress_bar.setValue(0)
+        self.url_progress_label.setText("网页进度: 0/0")
+        self.image_progress_label.setText("图片进度: 0/0")
         self.log_text.clear()
         self.add_log(f"发现 {len(urls)} 个网页链接")
 

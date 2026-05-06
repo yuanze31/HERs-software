@@ -210,6 +210,7 @@ class ImageResizeTab(QWidget):
 
         self.process_btn.setEnabled(False)
         self.progress_bar.setValue(0)
+        self.progress_label.setText("等待选择文件夹...")
         self.log_text.clear()
         self.add_log(f"处理文件夹: {folder_path}")
         self.add_log(f"目标宽度: {target_width}px")
