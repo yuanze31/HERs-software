@@ -1,8 +1,8 @@
 import os
 import sys
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
-                             QPushButton, QProgressBar, QTextEdit, QLabel)
-from PyQt6.QtCore import QThread, pyqtSignal, Qt
+
+from PyQt6.QtCore import pyqtSignal, QThread
+from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QVBoxLayout, QWidget)
 
 if getattr(sys, 'frozen', False):
     sys.path.insert(0, os.path.dirname(sys.executable))
@@ -25,20 +25,20 @@ class DownloadWorker(QThread):
     def run(self):
         downloader = ImageDownloader()
         overall_result = {
-            'success': True,
-            'total_urls': len(self.urls),
-            'success_urls': 0,
-            'total_images': 0,
-            'success_images': 0,
-            'errors': [],
-            'url_results': []
-        }
+                'success': True,
+                'total_urls': len(self.urls),
+                'success_urls': 0,
+                'total_images': 0,
+                'success_images': 0,
+                'errors': [],
+                'url_results': []
+                }
 
         for idx, url in enumerate(self.urls, 1):
             result = downloader.download_images(url, self.on_progress)
             self.url_finished.emit(url, result)
             self.url_progress_updated.emit(idx, len(self.urls))
-            
+
             if result['success']:
                 overall_result['success_urls'] += 1
                 overall_result['total_images'] += result['total']
@@ -109,7 +109,7 @@ class ImageDownloadTab(QWidget):
 
         url_progress_layout = QHBoxLayout()
         url_progress_layout.setSpacing(10)
-        
+
         self.url_progress_bar = QProgressBar()
         self.url_progress_bar.setValue(0)
         self.url_progress_bar.setStyleSheet("""
@@ -123,10 +123,10 @@ class ImageDownloadTab(QWidget):
                 border-radius: 4px;
             }
         """)
-        
+
         self.url_progress_label = QLabel("网页进度: 0/0")
         self.url_progress_label.setStyleSheet("font-size: 12px; color: #666;")
-        
+
         url_progress_layout.addWidget(self.url_progress_bar)
         url_progress_layout.addWidget(self.url_progress_label)
         layout.addLayout(url_progress_layout)

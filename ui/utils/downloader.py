@@ -6,19 +6,19 @@ from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
 MIME_TO_EXT = {
-    'image/jpeg': 'jpg',
-    'image/jpg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif',
-    'image/webp': 'webp',
-    'image/svg+xml': 'svg',
-    'image/bmp': 'bmp',
-}
+        'image/jpeg': 'jpg',
+        'image/jpg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/svg+xml': 'svg',
+        'image/bmp': 'bmp',
+        }
 
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-}
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        }
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -81,7 +81,7 @@ class ImageDownloader:
                 if 'text/html' in content_type:
                     html = response.read().decode('utf-8', errors='ignore')
                     page_title = extract_page_title(html)
-                    
+
                     for src in extract_image_sources(html):
                         if src.startswith('//'):
                             src = f'https:{src}'
@@ -97,20 +97,29 @@ class ImageDownloader:
                 elif content_type.startswith('image/'):
                     image_urls.append(base_url)
                 else:
-                    return {'success': False, 'message': f"跳过非媒体内容：{url}"}
+                    return {
+                            'success': False,
+                            'message': f"跳过非媒体内容：{url}"
+                            }
 
         except Exception as e:
-            return {'success': False, 'message': f"处理链接失败: {str(e)}"}
+            return {
+                    'success': False,
+                    'message': f"处理链接失败: {str(e)}"
+                    }
 
         total = len(image_urls)
         if total == 0:
-            return {'success': False, 'message': "未找到任何图片"}
+            return {
+                    'success': False,
+                    'message': "未找到任何图片"
+                    }
 
         if page_title:
             folder_name = sanitize_filename(page_title)
         else:
             folder_name = urlparse(url).netloc or f"page_{hashlib.md5(url.encode()).hexdigest()[:8]}"
-        
+
         download_dir = os.path.join(self.base_dir, folder_name)
         os.makedirs(download_dir, exist_ok=True)
 
@@ -161,11 +170,11 @@ class ImageDownloader:
                     progress_callback(i, total, success_count)
 
         result = {
-            'success': True,
-            'total': total,
-            'success_count': success_count,
-            'download_dir': download_dir,
-            'url': url,
-            'errors': errors
-        }
+                'success': True,
+                'total': total,
+                'success_count': success_count,
+                'download_dir': download_dir,
+                'url': url,
+                'errors': errors
+                }
         return result

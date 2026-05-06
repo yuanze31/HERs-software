@@ -1,8 +1,8 @@
-from PyQt6.QtWidgets import (QMainWindow, QTabWidget, QWidget, QStatusBar,
-                             QVBoxLayout)
-from PyQt6.QtGui import QIcon
 import os
 import sys
+
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import (QMainWindow, QStatusBar, QTabWidget)
 
 if getattr(sys, 'frozen', False):
     sys.path.insert(0, os.path.dirname(sys.executable))

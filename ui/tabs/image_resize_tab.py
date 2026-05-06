@@ -1,9 +1,8 @@
 import os
 import sys
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLineEdit,
-                             QPushButton, QProgressBar, QTextEdit, QLabel,
-                             QFileDialog)
-from PyQt6.QtCore import QThread, pyqtSignal
+
+from PyQt6.QtCore import pyqtSignal, QThread
+from PyQt6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit, QProgressBar, QPushButton, QTextEdit, QVBoxLayout, QWidget)
 
 if getattr(sys, 'frozen', False):
     sys.path.insert(0, os.path.dirname(sys.executable))
@@ -16,6 +15,7 @@ from utils.resizer import ImageResizer
 class ResizeWorker(QThread):
     progress_updated = pyqtSignal(int, int, int)
     finished = pyqtSignal(dict)
+    file_processed = pyqtSignal(str, bool, str)
 
     def __init__(self, folder_path, target_width):
         super().__init__()
@@ -23,12 +23,32 @@ class ResizeWorker(QThread):
         self.target_width = target_width
 
     def run(self):
-        resizer = ImageResizer()
-        result = resizer.process_images(self.folder_path, self.target_width, self.on_progress)
-        self.finished.emit(result)
+        try:
+            resizer = ImageResizer()
+            result = resizer.process_images(
+                    self.folder_path,
+                    self.target_width,
+                    self.on_progress,
+                    self.on_file_processed
+                    )
+            result['target_width'] = self.target_width
+            self.finished.emit(result)
+        except Exception as e:
+            self.finished.emit({
+                    'success': False,
+                    'message': f"处理过程发生未预期错误: {str(e)}",
+                    'total': 0,
+                    'processed_count': 0,
+                    'output_dir': '',
+                    'target_width': self.target_width,
+                    'errors': [f"致命错误: {str(e)}"]
+                    })
 
     def on_progress(self, current, total, processed_count):
         self.progress_updated.emit(current, total, processed_count)
+
+    def on_file_processed(self, filename, success, error_msg=None):
+        self.file_processed.emit(filename, success, error_msg if error_msg else "")
 
 
 class ImageResizeTab(QWidget):
@@ -195,6 +215,7 @@ class ImageResizeTab(QWidget):
 
         self.worker = ResizeWorker(folder_path, target_width)
         self.worker.progress_updated.connect(self.on_progress)
+        self.worker.file_processed.connect(self.on_file_processed)
         self.worker.finished.connect(self.on_process_finished)
         self.worker.start()
 
@@ -202,6 +223,12 @@ class ImageResizeTab(QWidget):
         progress = int((current / total) * 100)
         self.progress_bar.setValue(progress)
         self.progress_label.setText(f"进度: {current}/{total} (成功: {processed_count})")
+
+    def on_file_processed(self, filename, success, error_msg):
+        if success:
+            self.add_log(f"✓ {filename}")
+        else:
+            self.add_log(f"✗ {filename}: {error_msg}")
 
     def on_process_finished(self, result):
         self.process_btn.setEnabled(True)
@@ -211,14 +238,17 @@ class ImageResizeTab(QWidget):
             self.progress_label.setText("处理失败")
             return
 
+        target_width = result.get('target_width', 680)
         self.add_log(f"找到 {result['total']} 个图像文件")
         self.add_log(f"成功处理 {result['processed_count']}/{result['total']} 个文件")
         self.add_log(f"结果已保存到: {result['output_dir']}")
-        self.add_log(f"---即当前目录下 output_{result['total']} 文件夹---")
+        self.add_log(f"---当前目录下 output_{target_width} 文件夹---")
 
         if result['errors']:
             self.add_log("\n部分文件处理失败:")
-            for error in result['errors']:
+            for error in result['errors'][:10]:
                 self.add_log(error)
+            if len(result['errors']) > 10:
+                self.add_log(f"... 还有 {len(result['errors']) - 10} 个错误")
 
         self.progress_label.setText("处理完成")
