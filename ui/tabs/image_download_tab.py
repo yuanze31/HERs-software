@@ -148,7 +148,7 @@ class ImageDownloadTab(QWidget):
             }
         """)
 
-        self.image_progress_label = QLabel("图片进度: 等待中...")
+        self.image_progress_label = QLabel("图片进度: 0/0")
         self.image_progress_label.setStyleSheet("font-size: 12px; color: #666;")
 
         image_progress_layout.addWidget(self.image_progress_bar)
