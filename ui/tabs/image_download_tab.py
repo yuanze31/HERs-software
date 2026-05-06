@@ -14,6 +14,7 @@ from utils.downloader import ImageDownloader
 
 class DownloadWorker(QThread):
     progress_updated = pyqtSignal(int, int, int)
+    url_progress_updated = pyqtSignal(int, int)
     finished = pyqtSignal(dict)
     url_finished = pyqtSignal(str, dict)
 
@@ -33,9 +34,10 @@ class DownloadWorker(QThread):
             'url_results': []
         }
 
-        for url in self.urls:
+        for idx, url in enumerate(self.urls, 1):
             result = downloader.download_images(url, self.on_progress)
             self.url_finished.emit(url, result)
+            self.url_progress_updated.emit(idx, len(self.urls))
             
             if result['success']:
                 overall_result['success_urls'] += 1
@@ -105,12 +107,12 @@ class ImageDownloadTab(QWidget):
         """)
         layout.addWidget(self.download_btn)
 
-        progress_layout = QHBoxLayout()
-        progress_layout.setSpacing(10)
-
-        self.progress_bar = QProgressBar()
-        self.progress_bar.setValue(0)
-        self.progress_bar.setStyleSheet("""
+        url_progress_layout = QHBoxLayout()
+        url_progress_layout.setSpacing(10)
+        
+        self.url_progress_bar = QProgressBar()
+        self.url_progress_bar.setValue(0)
+        self.url_progress_bar.setStyleSheet("""
             QProgressBar {
                 height: 24px;
                 border-radius: 4px;
@@ -121,13 +123,37 @@ class ImageDownloadTab(QWidget):
                 border-radius: 4px;
             }
         """)
+        
+        self.url_progress_label = QLabel("网页进度: 0/0")
+        self.url_progress_label.setStyleSheet("font-size: 12px; color: #666;")
+        
+        url_progress_layout.addWidget(self.url_progress_bar)
+        url_progress_layout.addWidget(self.url_progress_label)
+        layout.addLayout(url_progress_layout)
 
-        self.progress_label = QLabel("等待输入...")
-        self.progress_label.setStyleSheet("font-size: 12px; color: #666;")
+        image_progress_layout = QHBoxLayout()
+        image_progress_layout.setSpacing(10)
 
-        progress_layout.addWidget(self.progress_bar)
-        progress_layout.addWidget(self.progress_label)
-        layout.addLayout(progress_layout)
+        self.image_progress_bar = QProgressBar()
+        self.image_progress_bar.setValue(0)
+        self.image_progress_bar.setStyleSheet("""
+            QProgressBar {
+                height: 24px;
+                border-radius: 4px;
+                background-color: #f0f0f0;
+            }
+            QProgressBar::chunk {
+                background-color: #5cb85c;
+                border-radius: 4px;
+            }
+        """)
+
+        self.image_progress_label = QLabel("图片进度: 等待中...")
+        self.image_progress_label.setStyleSheet("font-size: 12px; color: #666;")
+
+        image_progress_layout.addWidget(self.image_progress_bar)
+        image_progress_layout.addWidget(self.image_progress_label)
+        layout.addLayout(image_progress_layout)
 
         self.log_text = QTextEdit()
         self.log_text.setReadOnly(True)
@@ -161,7 +187,8 @@ class ImageDownloadTab(QWidget):
             return
 
         self.download_btn.setEnabled(False)
-        self.progress_bar.setValue(0)
+        self.url_progress_bar.setValue(0)
+        self.image_progress_bar.setValue(0)
         self.log_text.clear()
         self.add_log(f"发现 {len(urls)} 个网页链接")
 
@@ -169,15 +196,21 @@ class ImageDownloadTab(QWidget):
             self.add_log(f"{i}. {url}")
 
         self.worker = DownloadWorker(urls)
-        self.worker.progress_updated.connect(self.on_progress)
+        self.worker.progress_updated.connect(self.on_image_progress)
+        self.worker.url_progress_updated.connect(self.on_url_progress)
         self.worker.url_finished.connect(self.on_url_finished)
         self.worker.finished.connect(self.on_download_finished)
         self.worker.start()
 
-    def on_progress(self, current, total, success_count):
+    def on_url_progress(self, current, total):
         progress = int((current / total) * 100)
-        self.progress_bar.setValue(progress)
-        self.progress_label.setText(f"进度: {current}/{total} (成功: {success_count})")
+        self.url_progress_bar.setValue(progress)
+        self.url_progress_label.setText(f"网页进度: {current}/{total}")
+
+    def on_image_progress(self, current, total, success_count):
+        progress = int((current / total) * 100)
+        self.image_progress_bar.setValue(progress)
+        self.image_progress_label.setText(f"图片进度: {current}/{total} (成功: {success_count})")
 
     def on_url_finished(self, url, result):
         if result['success']:
@@ -194,7 +227,7 @@ class ImageDownloadTab(QWidget):
         self.add_log("\n=== 下载完成 ===")
         self.add_log(f"处理网页: {result['success_urls']}/{result['total_urls']}")
         self.add_log(f"下载图片: {result['success_images']}/{result['total_images']}")
-        self.add_log("---就在你的桌面/0000图片下载/---")
+        self.add_log("---保存位置：桌面/0000图片下载/---")
 
         if result['errors']:
             self.add_log("\n部分图片下载失败:")
@@ -203,4 +236,5 @@ class ImageDownloadTab(QWidget):
             if len(result['errors']) > 10:
                 self.add_log(f"... 还有 {len(result['errors']) - 10} 个错误")
 
-        self.progress_label.setText("下载完成")
+        self.url_progress_label.setText("网页进度: 完成")
+        self.image_progress_label.setText("图片进度: 完成")
