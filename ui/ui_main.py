@@ -19,12 +19,14 @@ class MainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("图片工具集")
+        self.setWindowTitle("yuanze31的工具集")
         self.setGeometry(100, 100, 800, 600)
 
-        icon_path = "yuanze31.ico"
         if getattr(sys, 'frozen', False):
             icon_path = os.path.join(os.path.dirname(sys.executable), "yuanze31.ico")
+        else:
+            icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "yuanze31.ico")
+        
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
