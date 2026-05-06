@@ -145,7 +145,7 @@ class ImageDownloadTab(QWidget):
                 background-color: #f0f0f0;
             }
             QProgressBar::chunk {
-                background-color: #5cb85c;
+                background-color: #4a90d9;
                 border-radius: 4px;
             }
         """)
