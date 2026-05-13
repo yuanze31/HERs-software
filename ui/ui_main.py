@@ -50,6 +50,13 @@ class MainWindow(QMainWindow):
             QTabBar::tab:hover:not(selected) {
                 background-color: #d8d8d8;
             }
+            QTabWidget::pane {
+                border: none;
+            }
+            QWidget {
+                padding: 0;
+                margin: 0;
+            }
         """)
 
         self._load_tabs()
